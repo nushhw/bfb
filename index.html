@@ -95,7 +95,7 @@
                 </div>
                 <div class="bg-blue-700 p-6 rounded-lg shadow-xl text-white m-2">
                     <p class="text-lg font-semibold">Time Limit:</p>
-                    <p class="text-4xl font-bold number-animate" data-target="18" data-unit="Hours">0</p>
+                    <p class="text-4xl font-bold number-animate" data-target="18" data-unit=" Hours">0</p>
                 </div>
             </div>
         </section>
@@ -429,9 +429,21 @@
 
                 const easeOutQuad = t => t * (2 - t); // Quadratic easing out
 
+                // Determine duration based on target value
+                let effectiveDuration = duration; // Default duration (1500ms from the call)
+
+                // Adjust duration based on target value
+                // if (target > 500) {
+                //     effectiveDuration = 800; // Faster for very high points
+                // } else if (target > 200) {
+                //     effectiveDuration = 1200; // Faster for moderately high points
+                // }
+
+                effectiveDuration = Math.max(500, duration - (target * 0.5)); // Ensures a minimum duration (500ms) and gets faster as target increases
+
                 const step = (currentTime) => {
                     if (!startTime) startTime = currentTime;
-                    const progress = Math.min((currentTime - startTime) / duration, 1);
+                    const progress = Math.min((currentTime - startTime) / effectiveDuration, 1); // Use effectiveDuration here
                     const easedProgress = easeOutQuad(progress);
                     const current = Math.floor(easedProgress * target);
 
@@ -466,7 +478,7 @@
                         const target = parseInt(element.dataset.target, 10);
                         const unit = element.dataset.unit || ''; // Get unit if it exists
                         if (!isNaN(target)) {
-                            animateNumber(element, target, 1500, unit); // 1.5 seconds animation
+                            animateNumber(element, target, 1500, unit); // 1500ms is now the base duration
                         }
                     } else {
                         // Optional: Reset numbers when they scroll out of view
