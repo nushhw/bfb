@@ -13,8 +13,9 @@
             font-family: 'Poppins', sans-serif;
         }
         /* Custom styles for image download button, if needed */
+        /* The download-button class is now effectively unused as the buttons are removed from HTML */
         .download-button {
-            display: none; /* Hidden by default, shown by JS when image exists */
+            display: none;
         }
     </style>
     <script>
@@ -271,7 +272,6 @@
                     <code class="block bg-gray-900 p-4 rounded-lg text-green-300 text-xl font-mono">Question x: Group x: Proof: xxx (Attachment or Latex or proof in text)</code>
                     <p class="text-gray-400 text-sm mt-2">Remember to be detailed and clear in your proof!</p>
                 </div>
-                
             </div>
             <p class="text-center text-3xl font-bold mt-12 text-yellow-400">Good luck teams!</p>
         </section>
@@ -281,165 +281,203 @@
         <p>&copy; 2025 BFB 2. All rights reserved.</p>
     </footer>
 
+    <div id="image-modal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
+        <div class="relative p-4 max-w-screen-lg max-h-screen-lg overflow-auto">
+            <button id="close-modal-btn" class="absolute top-4 right-4 text-white text-3xl font-bold p-2 rounded-full bg-gray-700 bg-opacity-70 hover:bg-gray-600 focus:outline-none transition-colors duration-300">
+                &times;
+            </button>
+            <img id="modal-image" src="" alt="Enlarged Problem Image" class="max-w-full max-h-full object-contain cursor-zoom-out">
+        </div>
+    </div>
+
 <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Smooth scrolling for navigation links
-            document.querySelectorAll('nav a').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
+    document.addEventListener('DOMContentLoaded', () => {
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('nav a').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
 
-                    document.querySelector(this.getAttribute('href')).scrollIntoView({
-                        behavior: 'smooth'
-                    });
-                    closeMobileMenu(); // Close mobile menu after clicking a link
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
                 });
+                closeMobileMenu(); // Close mobile menu after clicking a link
             });
+        });
 
-            // Mobile menu toggle
-            const mobileMenuButton = document.getElementById('mobile-menu-button');
-            const mobileNav = document.getElementById('mobile-nav');
-            const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
-            const closeMobileMenuButton = document.getElementById('close-mobile-menu');
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileNav = document.getElementById('mobile-nav');
+        const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+        const closeMobileMenuButton = document.getElementById('close-mobile-menu');
 
-            function openMobileMenu() {
-                mobileNav.classList.remove('translate-x-full');
-                mobileNav.classList.add('translate-x-0');
-                mobileMenuOverlay.classList.remove('hidden');
-                document.body.style.overflow = 'hidden'; // Prevent scrolling body when menu is open
+        function openMobileMenu() {
+            mobileNav.classList.remove('translate-x-full');
+            mobileNav.classList.add('translate-x-0');
+            mobileMenuOverlay.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling body when menu is open
+        }
+
+        function closeMobileMenu() {
+            mobileNav.classList.remove('translate-x-0');
+            mobileNav.classList.add('translate-x-full');
+            mobileMenuOverlay.classList.add('hidden');
+            document.body.style.overflow = ''; // Restore body scrolling
+        }
+
+        mobileMenuButton.addEventListener('click', openMobileMenu);
+        closeMobileMenuButton.addEventListener('click', closeMobileMenu);
+        mobileMenuOverlay.addEventListener('click', closeMobileMenu); // Close when clicking outside menu
+
+        // --- Image Modal Functionality ---
+        const imageModal = document.getElementById('image-modal');
+        const modalImage = document.getElementById('modal-image');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+
+        // Function to open the modal
+        const openImageModal = (imageSrc) => {
+            modalImage.src = imageSrc;
+            imageModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling body when modal is open
+        };
+
+        // Function to close the modal
+        const closeImageModal = () => {
+            imageModal.classList.add('hidden');
+            modalImage.src = ''; // Clear image source
+            document.body.style.overflow = ''; // Restore body scrolling
+        };
+
+        // Event Listener for the close button
+        closeModalBtn.addEventListener('click', closeImageModal);
+
+        // Event Listener to close modal when clicking outside the image (on the overlay)
+        imageModal.addEventListener('click', (e) => {
+            if (e.target === imageModal || e.target === modalImage) { // If clicked on the modal background or the image itself
+                closeImageModal();
             }
+        });
 
-            function closeMobileMenu() {
-                mobileNav.classList.remove('translate-x-0');
-                mobileNav.classList.add('translate-x-full');
-                mobileMenuOverlay.classList.add('hidden');
-                document.body.style.overflow = ''; // Restore body scrolling
+        // Event Listener for the ESC key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !imageModal.classList.contains('hidden')) {
+                closeImageModal();
             }
+        });
 
-            mobileMenuButton.addEventListener('click', openMobileMenu);
-            closeMobileMenuButton.addEventListener('click', closeMobileMenu);
-            mobileMenuOverlay.addEventListener('click', closeMobileMenu); // Close when clicking outside menu
+        // Function to handle image loading and make them clickable for the modal
+        const setupProblemImage = (problemType, problemNum) => {
+            const imgElement = document.getElementById(`${problemType}-problem-${problemNum}-img`);
+            const placeholderElement = document.getElementById(`${problemType}-problem-${problemNum}-placeholder`);
 
-            // Function to handle image loading
-            const setupProblemImage = (problemType, problemNum) => {
-                const imgElement = document.getElementById(`${problemType}-problem-${problemNum}-img`);
-                const placeholderElement = document.getElementById(`${problemType}-problem-${problemNum}-placeholder`);
-                // The download button element is no longer needed here as it will be removed from HTML
-
-                // Function to update image visibility
-                const updateImage = (src) => {
-                    if (src) {
-                        imgElement.src = src;
-                        imgElement.onload = () => {
-                            imgElement.classList.remove('hidden'); // Ensure image is visible
-                            placeholderElement.classList.add('hidden'); // Hide placeholder
-                        };
-                        imgElement.onerror = () => {
-                            console.error(`Failed to load image: ${src}`);
-                            // Keep placeholder visible if image fails to load
-                            imgElement.classList.add('hidden'); // Hide broken image icon
-                            placeholderElement.classList.remove('hidden');
-                        };
-                    } else {
-                        // If src is empty, ensure image is hidden and placeholder are correct
-                        imgElement.src = ''; // Clear src
-                        imgElement.classList.add('hidden'); // Hide image element itself
-                        placeholderElement.classList.remove('hidden'); // Show placeholder
-                    }
-                };
-
-                // Initial check for existing images (if you manually set src in HTML)
-                // This will run on page load and correctly set initial visibility
-                if (imgElement.src && imgElement.src !== window.location.href + '#') { // Check if src is actually set and not just a default empty href
-                    updateImage(imgElement.src);
+            // Function to update image and its clickability
+            const updateImage = (src) => {
+                if (src) {
+                    imgElement.src = src;
+                    imgElement.onload = () => {
+                        imgElement.classList.remove('hidden'); // Ensure image is visible
+                        placeholderElement.classList.add('hidden'); // Hide placeholder
+                        // Make the image clickable
+                        imgElement.classList.add('cursor-pointer'); // Add a pointer cursor
+                        imgElement.addEventListener('click', () => openImageModal(src)); // Attach click handler
+                    };
+                    imgElement.onerror = () => {
+                        console.error(`Failed to load image: ${src}`);
+                        imgElement.classList.add('hidden'); // Hide broken image icon
+                        placeholderElement.classList.remove('hidden');
+                        // Remove click handler if image fails to load
+                        imgElement.removeEventListener('click', () => openImageModal(src));
+                        imgElement.classList.remove('cursor-pointer');
+                    };
                 } else {
-                     // Ensure image is hidden and placeholder is in correct state initially
-                    imgElement.classList.add('hidden');
-                    placeholderElement.classList.remove('hidden');
+                    imgElement.src = ''; // Clear src
+                    imgElement.classList.add('hidden'); // Hide image element itself
+                    placeholderElement.classList.remove('hidden'); // Show placeholder
+                    // Remove click handler if no image
+                    imgElement.removeEventListener('click', () => openImageModal(src));
+                    imgElement.classList.remove('cursor-pointer');
                 }
             };
 
-            // Initialize setup for all main problems
-            for (let i = 1; i <= 10; i++) {
-                setupProblemImage('main', i);
+            // Initial check for existing images (if you manually set src in HTML)
+            if (imgElement.src && imgElement.src !== window.location.href + '#') {
+                updateImage(imgElement.src);
+            } else {
+                 // Ensure image is hidden and placeholder are in correct state initially
+                imgElement.classList.add('hidden');
+                placeholderElement.classList.remove('hidden');
             }
+        };
 
-            // Initialize setup for all bonus problems (updated to 7 if you added more)
-            for (let i = 1; i <= 7; i++) { // Assuming you updated this to 7 as per previous instruction
-                setupProblemImage('bonus', i);
-            }
+        // Initialize setup for all main problems
+        for (let i = 1; i <= 10; i++) {
+            setupProblemImage('main', i);
+        }
 
-            // Number Counting Animation Effect
-            const animateNumber = (element, target, duration, unit = '') => {
-                const start = 0;
-                let startTime = null;
+        // Initialize setup for all bonus problems
+        for (let i = 1; i <= 7; i++) {
+            setupProblemImage('bonus', i);
+        }
 
-                const easeOutQuad = t => t * (2 - t); // Quadratic easing out
+        // Number Counting Animation Effect
+        const animateNumber = (element, target, duration, unit = '') => {
+            const start = 0;
+            let startTime = null;
 
-                // Determine duration based on target value
-                let effectiveDuration = duration; // Default duration (1500ms from the call)
+            const easeOutQuad = t => t * (2 - t); // Quadratic easing out
 
-                effectiveDuration = Math.max(500, duration - (target * 0.5)); // Ensures a minimum duration (500ms) and gets faster as target increases
+            let effectiveDuration = duration;
+            effectiveDuration = Math.max(500, duration - (target * 0.5));
 
-                const step = (currentTime) => {
-                    if (!startTime) startTime = currentTime;
-                    const progress = Math.min((currentTime - startTime) / effectiveDuration, 1); // Use effectiveDuration here
-                    const easedProgress = easeOutQuad(progress);
-                    const current = Math.floor(easedProgress * target);
+            const step = (currentTime) => {
+                if (!startTime) startTime = currentTime;
+                const progress = Math.min((currentTime - startTime) / effectiveDuration, 1);
+                const easedProgress = easeOutQuad(progress);
+                const current = Math.floor(easedProgress * target);
 
-                    element.textContent = current + unit;
+                element.textContent = current + unit;
 
-                    if (progress < 1) {
-                        requestAnimationFrame(step);
-                    } else {
-                        element.textContent = target + unit; // Ensure final value is exact
-                        element.setAttribute('data-animated', 'true'); // Mark as animated
-                    }
-                };
-                requestAnimationFrame(step);
+                if (progress < 1) {
+                    requestAnimationFrame(step);
+                } else {
+                    element.textContent = target + unit; // Ensure final value is exact
+                    element.setAttribute('data-animated', 'true'); // Mark as animated
+                }
             };
+            requestAnimationFrame(step);
+        };
 
-            const observerOptions = {
-                root: null, // viewport
-                rootMargin: '0px',
-                threshold: 0.5 // Trigger when 50% of the element is visible
-            };
+        const observerOptions = {
+            root: null, // viewport
+            rootMargin: '0px',
+            threshold: 0.5 // Trigger when 50% of the element is visible
+        };
 
-            const numberObserver = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const element = entry.target;
-                        // Reset animation state if it was animated and scrolled out, then back in
-                        if (element.getAttribute('data-animated') === 'true') {
-                            element.textContent = '0' + (element.dataset.unit || ''); // Reset to 0
-                            element.removeAttribute('data-animated');
-                        }
-
-                        const target = parseInt(element.dataset.target, 10);
-                        const unit = element.dataset.unit || ''; // Get unit if it exists
-                        if (!isNaN(target)) {
-                            animateNumber(element, target, 1500, unit); // 1500ms is now the base duration
-                        }
-                    } else {
-                        // Optional: Reset numbers when they scroll out of view
-                        const element = entry.target;
-                        if (element.getAttribute('data-animated') === 'true') {
-                            element.textContent = '0' + (element.dataset.unit || ''); // Reset to 0
-                            element.removeAttribute('data-animated');
-                        }
+        const numberObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const element = entry.target;
+                    // Reset animation state if it was animated and scrolled out, then back in
+                    if (element.getAttribute('data-animated') === 'true') {
+                        element.textContent = '0' + (element.dataset.unit || ''); // Reset to 0
+                        element.removeAttribute('data-animated');
                     }
-                });
-            }, observerOptions);
 
-            // Observe the elements for the overview section
-            document.querySelectorAll('#overview .number-animate').forEach(el => {
-                numberObserver.observe(el);
+                    const target = parseInt(element.dataset.target, 10);
+                    const unit = element.dataset.unit || ''; // Get unit if it exists
+                    if (!isNaN(target)) {
+                        animateNumber(element, target, 1500, unit); // Adjust duration as needed
+                    }
+                    // No need to unobserve if you want it to re-animate on re-entry
+                    // observer.unobserve(element); 
+                }
             });
+        }, observerOptions);
 
-            // Observe the elements for the problem points
-            document.querySelectorAll('#problems .problem-points').forEach(el => {
-                numberObserver.observe(el);
-            });
+        document.querySelectorAll('.number-animate').forEach(element => {
+            numberObserver.observe(element);
         });
-    </script>
+
+    });
+</script>
 </body>
 </html>
