@@ -324,49 +324,49 @@
             mobileMenuOverlay.addEventListener('click', closeMobileMenu); // Close when clicking outside menu
 
             // Function to handle image loading and download button visibility
-            const setupProblemImage = (problemType, problemNum) => {
-                const imgElement = document.getElementById(`${problemType}-problem-${problemNum}-img`);
-                const placeholderElement = document.getElementById(`${problemType}-problem-${problemNum}-placeholder`);
-                const downloadButton = document.getElementById(`${problemType}-problem-${problemNum}-download`);
+            // const setupProblemImage = (problemType, problemNum) => {
+            //     const imgElement = document.getElementById(`${problemType}-problem-${problemNum}-img`);
+            //     const placeholderElement = document.getElementById(`${problemType}-problem-${problemNum}-placeholder`);
+            //     const downloadButton = document.getElementById(`${problemType}-problem-${problemNum}-download`);
 
-                // Function to update image and button visibility
-                const updateImage = (src) => {
-                    if (src) {
-                        imgElement.src = src;
-                        imgElement.onload = () => {
-                            imgElement.classList.remove('hidden'); // Ensure image is visible
-                            placeholderElement.classList.add('hidden'); // Hide placeholder
-                            downloadButton.href = src; // Set download link
-                            downloadButton.classList.remove('hidden'); // Show download button
-                            downloadButton.style.display = 'inline-flex'; // Ensure it's displayed correctly
-                        };
-                        imgElement.onerror = () => {
-                            console.error(`Failed to load image: ${src}`);
-                            // Keep placeholder visible if image fails to load
-                            imgElement.classList.add('hidden'); // Hide broken image icon
-                            placeholderElement.classList.remove('hidden');
-                            downloadButton.classList.add('hidden'); // Hide button if image fails
-                        };
-                    } else {
-                        // If src is empty, ensure image is hidden and placeholder/button are correct
-                        imgElement.src = ''; // Clear src
-                        imgElement.classList.add('hidden'); // Hide image element itself
-                        placeholderElement.classList.remove('hidden'); // Show placeholder
-                        downloadButton.classList.add('hidden'); // Hide download button
-                    }
-                };
+            //     // Function to update image and button visibility
+            //     const updateImage = (src) => {
+            //         if (src) {
+            //             imgElement.src = src;
+            //             imgElement.onload = () => {
+            //                 imgElement.classList.remove('hidden'); // Ensure image is visible
+            //                 placeholderElement.classList.add('hidden'); // Hide placeholder
+            //                 downloadButton.href = src; // Set download link
+            //                 downloadButton.classList.remove('hidden'); // Show download button
+            //                 downloadButton.style.display = 'inline-flex'; // Ensure it's displayed correctly
+            //             };
+            //             imgElement.onerror = () => {
+            //                 console.error(`Failed to load image: ${src}`);
+            //                 // Keep placeholder visible if image fails to load
+            //                 imgElement.classList.add('hidden'); // Hide broken image icon
+            //                 placeholderElement.classList.remove('hidden');
+            //                 downloadButton.classList.add('hidden'); // Hide button if image fails
+            //             };
+            //         } else {
+            //             // If src is empty, ensure image is hidden and placeholder/button are correct
+            //             imgElement.src = ''; // Clear src
+            //             imgElement.classList.add('hidden'); // Hide image element itself
+            //             placeholderElement.classList.remove('hidden'); // Show placeholder
+            //             downloadButton.classList.add('hidden'); // Hide download button
+            //         }
+            //     };
 
-                // Initial check for existing images (if you manually set src in HTML)
-                // This will run on page load and correctly set initial visibility
-                if (imgElement.src && imgElement.src !== window.location.href + '#') { // Check if src is actually set and not just a default empty href
-                    updateImage(imgElement.src);
-                } else {
-                     // Ensure image is hidden and button/placeholder are in correct state initially
-                    imgElement.classList.add('hidden');
-                    placeholderElement.classList.remove('hidden');
-                    downloadButton.classList.add('hidden');
-                }
-            };
+            //     // Initial check for existing images (if you manually set src in HTML)
+            //     // This will run on page load and correctly set initial visibility
+            //     if (imgElement.src && imgElement.src !== window.location.href + '#') { // Check if src is actually set and not just a default empty href
+            //         updateImage(imgElement.src);
+            //     } else {
+            //          // Ensure image is hidden and button/placeholder are in correct state initially
+            //         imgElement.classList.add('hidden');
+            //         placeholderElement.classList.remove('hidden');
+            //         downloadButton.classList.add('hidden');
+            //     }
+            // };
 
             // Initialize setup for all main problems
             for (let i = 1; i <= 10; i++) {
