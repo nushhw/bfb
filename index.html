@@ -285,7 +285,7 @@
         <p>&copy; 2025 BFB 2. All rights reserved.</p>
     </footer>
 
-    <script>
+<script>
         document.addEventListener('DOMContentLoaded', () => {
             // Smooth scrolling for navigation links
             document.querySelectorAll('nav a').forEach(anchor => {
@@ -323,58 +323,52 @@
             closeMobileMenuButton.addEventListener('click', closeMobileMenu);
             mobileMenuOverlay.addEventListener('click', closeMobileMenu); // Close when clicking outside menu
 
-            // Function to handle image loading and download button visibility
-            // const setupProblemImage = (problemType, problemNum) => {
-            //     const imgElement = document.getElementById(`${problemType}-problem-${problemNum}-img`);
-            //     const placeholderElement = document.getElementById(`${problemType}-problem-${problemNum}-placeholder`);
-            //     const downloadButton = document.getElementById(`${problemType}-problem-${problemNum}-download`);
+            // Function to handle image loading
+            const setupProblemImage = (problemType, problemNum) => {
+                const imgElement = document.getElementById(`${problemType}-problem-${problemNum}-img`);
+                const placeholderElement = document.getElementById(`${problemType}-problem-${problemNum}-placeholder`);
+                // The download button element is no longer needed here as it will be removed from HTML
 
-            //     // Function to update image and button visibility
-            //     const updateImage = (src) => {
-            //         if (src) {
-            //             imgElement.src = src;
-            //             imgElement.onload = () => {
-            //                 imgElement.classList.remove('hidden'); // Ensure image is visible
-            //                 placeholderElement.classList.add('hidden'); // Hide placeholder
-            //                 downloadButton.href = src; // Set download link
-            //                 downloadButton.classList.remove('hidden'); // Show download button
-            //                 downloadButton.style.display = 'inline-flex'; // Ensure it's displayed correctly
-            //             };
-            //             imgElement.onerror = () => {
-            //                 console.error(`Failed to load image: ${src}`);
-            //                 // Keep placeholder visible if image fails to load
-            //                 imgElement.classList.add('hidden'); // Hide broken image icon
-            //                 placeholderElement.classList.remove('hidden');
-            //                 downloadButton.classList.add('hidden'); // Hide button if image fails
-            //             };
-            //         } else {
-            //             // If src is empty, ensure image is hidden and placeholder/button are correct
-            //             imgElement.src = ''; // Clear src
-            //             imgElement.classList.add('hidden'); // Hide image element itself
-            //             placeholderElement.classList.remove('hidden'); // Show placeholder
-            //             downloadButton.classList.add('hidden'); // Hide download button
-            //         }
-            //     };
+                // Function to update image visibility
+                const updateImage = (src) => {
+                    if (src) {
+                        imgElement.src = src;
+                        imgElement.onload = () => {
+                            imgElement.classList.remove('hidden'); // Ensure image is visible
+                            placeholderElement.classList.add('hidden'); // Hide placeholder
+                        };
+                        imgElement.onerror = () => {
+                            console.error(`Failed to load image: ${src}`);
+                            // Keep placeholder visible if image fails to load
+                            imgElement.classList.add('hidden'); // Hide broken image icon
+                            placeholderElement.classList.remove('hidden');
+                        };
+                    } else {
+                        // If src is empty, ensure image is hidden and placeholder are correct
+                        imgElement.src = ''; // Clear src
+                        imgElement.classList.add('hidden'); // Hide image element itself
+                        placeholderElement.classList.remove('hidden'); // Show placeholder
+                    }
+                };
 
-            //     // Initial check for existing images (if you manually set src in HTML)
-            //     // This will run on page load and correctly set initial visibility
-            //     if (imgElement.src && imgElement.src !== window.location.href + '#') { // Check if src is actually set and not just a default empty href
-            //         updateImage(imgElement.src);
-            //     } else {
-            //          // Ensure image is hidden and button/placeholder are in correct state initially
-            //         imgElement.classList.add('hidden');
-            //         placeholderElement.classList.remove('hidden');
-            //         downloadButton.classList.add('hidden');
-            //     }
-            // };
+                // Initial check for existing images (if you manually set src in HTML)
+                // This will run on page load and correctly set initial visibility
+                if (imgElement.src && imgElement.src !== window.location.href + '#') { // Check if src is actually set and not just a default empty href
+                    updateImage(imgElement.src);
+                } else {
+                     // Ensure image is hidden and placeholder is in correct state initially
+                    imgElement.classList.add('hidden');
+                    placeholderElement.classList.remove('hidden');
+                }
+            };
 
             // Initialize setup for all main problems
             for (let i = 1; i <= 10; i++) {
                 setupProblemImage('main', i);
             }
 
-            // Initialize setup for all bonus problems
-            for (let i = 1; i <= 7; i++) {
+            // Initialize setup for all bonus problems (updated to 7 if you added more)
+            for (let i = 1; i <= 7; i++) { // Assuming you updated this to 7 as per previous instruction
                 setupProblemImage('bonus', i);
             }
 
@@ -387,13 +381,6 @@
 
                 // Determine duration based on target value
                 let effectiveDuration = duration; // Default duration (1500ms from the call)
-
-                // Adjust duration based on target value
-                // if (target > 500) {
-                //     effectiveDuration = 800; // Faster for very high points
-                // } else if (target > 200) {
-                //     effectiveDuration = 1200; // Faster for moderately high points
-                // }
 
                 effectiveDuration = Math.max(500, duration - (target * 0.5)); // Ensures a minimum duration (500ms) and gets faster as target increases
 
